@@ -1,6 +1,6 @@
 # jinja-2-pdf-aws-glue
 
-Download the repo by clonign to local machine. Once done create a virtual env in python using command
+Download the repo by cloning to local machine. Once done create a virtual env in python using command
 
 virtualenv venv
 
