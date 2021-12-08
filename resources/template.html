@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flask Template Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <style type="text/css">
+      .container {
+        max-width: 500px;
+        padding-top: 100px;
+      }
+      h1   {background-color:blue; color: rgb(29, 29, 51);}
+      p    {color: blue;}
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <p><center><b><h1>Customer Sale Report</h1></b></center></p>  
+      <p>
+        {% for value in list_data %}
+            <div>
+                Customer Name: {{value["customer"]}}
+                <br/>
+                Total Sales: {{value["sum_sales"]}}    
+            </div>
+        {% endfor %}
+      </p>
+    </div>
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+  </body>
+</html>
