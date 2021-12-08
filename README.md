@@ -20,11 +20,13 @@ Create a glue job and add the uploaded zip folder s3 path in python library depe
 
 Copy the app.py code to glue job code and add necessary parameters :
 
-Upload the template.html file under resources folder to s3
-
 INPUT_DATA_PATH - Data file which needs to be used to read data
 OUTPUT_PDF_PATH - Path in s3 to generate pdf file
-TEMPLATE_PATH - Path in s3 where template file is uploaded
+TEMPLATE_PATH - Path in s3 where template file is uploaded (as described below)
+
+Upload the template.html file under resources folder to s3
+
+
 
 Post this run the glue job to create pdf based on Jinja template defined in template.html
 
