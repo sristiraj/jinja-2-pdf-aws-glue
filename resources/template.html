@@ -1,33 +1,246 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Flask Template Example</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <style type="text/css">
-      .container {
-        max-width: 500px;
-        padding-top: 100px;
-      }
-      h1   {background-color:blue; color: rgb(29, 29, 51);}
-      p    {color: blue;}
 
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <p><center><b><h1>Customer Sale Report</h1></b></center></p>  
-      <p>
-        {% for value in list_data %}
-            <div>
-                Customer Name: {{value["customer"]}}
-                <br/>
-                Total Sales: {{value["sum_sales"]}}    
-            </div>
-        {% endfor %}
-      </p>
+<head>
+  <style>
+    .center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #header {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      padding-left: 25px;
+      overflow: auto;
+    }
+
+    #header-main {
+      float: center;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    #header-left {
+      float: left;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #header-right {
+      float: right;
+      margin-left: auto;
+      margin-right: 20px;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  {% for value in list_data[0]%}
+  <div id="header">
+    <div id="header-right">
+      Run Date: 05/12/20 <br>
+      Run Time: 23:53:!5 <br>
+      Page: 1
     </div>
-    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  </body>
+    <div id="header-left">
+      TSP Report No:  {{value["TSP_REPORT_NUMBER"]}}  <br>
+      Payroll Office No: {{value["PAYROLL_OFFICE_NUMBER"]}} <br>
+      Requestor: {{value["REQUESTOR"]}} <br>
+      TSPQ
+    </div>
+    <div id="header-main">
+      Savings Plan <br>
+      Participant Transaction History Report <br>
+      Name: {{value["PARTICIPANT_NAME"]}}
+      &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+      SSN: {{value["PART_SSN"]}}
+    </div>
+  </div>
+  <table class="center">
+    <caption>
+      ** Sensitive Personnel Data - Use is Restricted ** <br><br>
+    </caption>
+    <tr>
+      <td>DOB: {{value["DOB"]}}</td>
+      <td>Plan: {{value["PLAN"]}}</td>
+      <td>Dpt: {{value["DEPARTMENT_CODE"]}}</td>
+      <td>AGY: {{value["DEPARTMENT_CODE"]}}</td>
+      <td>PON: {{value["PAYROLL_OFFICE_NUMBER"]}}</td>
+      <td>POI: {{value["PERSONAL_OFFICE_INDICATOR"]}}</td>
+      <td>EC: {{value["EMPLOYMENT_CODE"]}}&nbsp;{{value["EMPLOYMENT_CODE_EFFECTIVE_DATE"]}}</td>
+      <td>SCD: {{value["SERVICE_COMPUTATION_DATE"]}}</td>
+      <td>Period: {{value["INPUT_START_DATE"]}}&nbsp; {{value["INPUT_END_DATE"]}}</td>
+      <td>AE: {{value["AUTO_ENROLLMENT_CODE"]}}</td>
+    </tr>
+  </table>
+  {% endfor %}
+  <br>
+  <table class="center">
+    <tr>
+      <th scope="col">PO Nbr<br>--------</th>
+      <th scope="col">JV #<br>------</th>
+      <th scope="col">Post Date<br>------</th>
+      <th scope="col">Pay Date<br>------</th>
+      <th scope="col">activity<br>------</th>
+      <th scope="col">AE<br>------</th>
+      <th scope="col">rv<br>------</th>
+      <th scope="col">Fund<br>------</th>
+      <th scope="col">employee<br>------</th>
+      <th scope="col">automatic<br>------</th>
+      <th scope="col">matching<br>------</th>
+      <th scope="col">total<br>------</th>
+    </tr>
+    </thead>
+    <tbody>
+	{% for value in list_data[1]%}
+      <tr>
+        <!--PO Nbr-->
+        <td></td>
+        <!--JV #-->
+        <td></td>
+        <!--Post Date-->
+        <td>{{value["POST_DATE"]}}</td>
+        <!--Pay Date-->
+        <td>{{value["PAY_DATE"]}}</td>
+        <!--activity-->
+        <td>{{value["ACTIVITY"]}}</td>
+        <!--AE-->
+        <td>{{value["AE"]}}</td>
+        <!--rv-->
+        <td>{{value["RV"]}}</td>
+        <!--Fund-->
+        <td>{{value["FUND"]}}</td>
+        <!--employee-->
+        <td>{{value["EMPLOYEE"]}}</td>
+        <!--automatic-->
+        <td>{{value["AUTOMATIC"]}}</td>
+        <!--matching-->
+        <td>{{value["MATCHING"]}}</td>
+        <!--total-->
+        <td>{{value["ROW_TOTAL"]}}</td>
+      </tr>
+
+      {% endfor %}
+
+    </tbody>
+    <tfoot>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>******</td>
+		{% for value in list_data[2]%}
+        <td>-----------<br>{{value["EMPLOYEE_SUM"]}}</td>
+        <td>-----------<br>{{value["AUTOMATIC_SUM"]}}</td>
+        <td>-----------<br>{{value["MATCHING_SUM"]}}</td>
+        <td>-----------<br>{{value["ROW_TOTAL_SUM"]}}</td>
+		{% endfor %}
+      </tr>
+    </tfoot>
+  </table>
+</body>
+
 </html>
+
+
+
+
+
+
+
+
+
+
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+
+
+
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+
+
+
+
+
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
