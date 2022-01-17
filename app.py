@@ -13,8 +13,6 @@ from io import StringIO
 import boto3
 
 
-#For local invocation
-# args = {"TEMPLATE_PATH":"file://C:\\Users\\RAJSR1\\Downloads\\vscoderepos\\jinjaglue\\resources\\template.html","INPUT_DATA_PATH":"file://C:\\Users\\RAJSR1\\Downloads\\vscoderepos\\jinjaglue\\data\\sample.csv"}
 
 #For glue invocation
 AWS_REGION = "us-east-1"
