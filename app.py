@@ -10,18 +10,26 @@ import pyspark.sql.functions as sf
 import json
 from xhtml2pdf import pisa
 from io import StringIO
+import boto3
 
 
 #For local invocation
 # args = {"TEMPLATE_PATH":"file://C:\\Users\\RAJSR1\\Downloads\\vscoderepos\\jinjaglue\\resources\\template.html","INPUT_DATA_PATH":"file://C:\\Users\\RAJSR1\\Downloads\\vscoderepos\\jinjaglue\\data\\sample.csv"}
 
 #For glue invocation
-args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","INPUT_DATA_PATH","OUTPUT_PDF_PATH"])
+AWS_REGION = "us-east-1"
+args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","INPUT_DATA_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_QUERY_PATH","DETAIL_QUERY_PATH"])
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 
-temp_pdf = "output.pdf"
+temp_pdf = "Report_{}.pdf".format(args["PART_SSN"].replace(" ","_"))
+print(temp_pdf)
+connection_redshift_options = {}
+
+def get_report_data_jdbc(self, tbl):
+        ddf = glueContext.create_dynamic_frame.from_options(connection_type="redshift", connection_options=connection_redshift_options)
+        return df
 
 def read_template(path):
     '''
@@ -43,9 +51,14 @@ def read_template(path):
 
 def get_report_data(input_data_path):
     import boto3
-    df = spark.read.format("csv").option("header","true").load(input_data_path)
-    df_agg = df.groupBy("customer").agg(sf.sum("sale").alias("sum_sales"))
-    list_data = list(map(lambda row: row.asDict(), df_agg.collect()))
+    df_header = spark.read.format("csv").option("header","true").load(input_data_path+"/header").fillna("")
+    df_detail = spark.read.format("csv").option("header","true").load(input_data_path+"/detail").fillna("")
+    df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM"))
+
+    list_data_header = list(map(lambda row: row.asDict(), df_header.collect()))
+    list_data_detail = list(map(lambda row: row.asDict(), df_detail.collect()))
+    list_data_summed = list(map(lambda row: row.asDict(), df_summed.collect()))
+    list_data = [list_data_header, list_data_detail, list_data_summed]
     print(list_data)
     return list_data
     
@@ -63,14 +76,14 @@ def write_pdf_s3(filename, path):
     s3_key = path[s3_bucket_index+6:]
     obj = s3.Object(s3_bucket, s3_key+filename)
     s3 = boto3.client('s3')
-    with open("output.pdf", "rb") as f:
+    with open(temp_pdf, "rb") as f:
         s3.upload_fileobj(f, s3_bucket, s3_key+"/"+filename)
         
 template_data = read_template(args["TEMPLATE_PATH"])
 template = Template(template_data)
 
 list_data = get_report_data(args["INPUT_DATA_PATH"])
-print(type(list_data))
+# print(type(list_data))
 template_out = template.render(list_data=list_data)
 
 with open("output.html","w+") as f:
