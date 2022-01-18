@@ -58,7 +58,7 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     database = "{}".format(url_list[-1])
     user = "{}".format(connection_properties['USERNAME'])
     pwd = "{}".format(connection_properties['PASSWORD'])
-    connection_redshift_options = {"url": URL, "user": user, "password": pwd, "redshiftTmpDir": tmp_dir_path} 
+    connection_redshift_options = {"url": URL, "database":database, "user": user, "password": pwd, "redshiftTmpDir": tmp_dir_path} 
     # df_header = spark.read.format("csv").option("header","true").load(input_data_path+"/header").fillna("")
     # df_detail = spark.read.format("csv").option("header","true").load(input_data_path+"/detail").fillna("")
     connection_redshift_options["dbtable"] = args["HEADER_TABLE"]
