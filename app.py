@@ -15,7 +15,7 @@ import boto3
 
 
 #For glue invocation
-AWS_REGION = "us-east-1"
+AWS_REGION = "us-gov-west-2"
 args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE"])
 sc = SparkContext()
 glueContext = GlueContext(sc)
@@ -47,7 +47,7 @@ def read_template(path):
 
 def get_report_data(glue_conn_name, tmp_dir_path):
     import boto3
-    client = boto3.client('glue', region_name="us-east-1")
+    client = boto3.client('glue', region_name=AWS_REGION)
     response = client.get_connection(Name=glue_conn_name)
     connection_properties = response['Connection']['ConnectionProperties']
     URL = connection_properties['JDBC_CONNECTION_URL']
@@ -62,9 +62,9 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     # df_header = spark.read.format("csv").option("header","true").load(input_data_path+"/header").fillna("")
     # df_detail = spark.read.format("csv").option("header","true").load(input_data_path+"/detail").fillna("")
     connection_redshift_options["dbtable"] = args["HEADER_TABLE"]
-    df_header = glueContext.create_dynamic_frame.from_options(connection_type="redshift", connection_options=connection_redshift_options)
+    df_header = glueContext.create_dynamic_frame.from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF().filter("PART_SSN='"+args["PART_SSN"]+"'")
     connection_redshift_options["dbtable"] = args["DETAIL_TABLE"]
-    df_header = glueContext.create_dynamic_frame.from_options(connection_type="redshift", connection_options=connection_redshift_options)
+    df_header = glueContext.create_dynamic_frame.from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF().filter("PART_SSN='"+args["PART_SSN"]+"'")
     df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM"))
 
     list_data_header = list(map(lambda row: row.asDict(), df_header.collect()))
