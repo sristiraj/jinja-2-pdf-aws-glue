@@ -15,7 +15,7 @@ import boto3
 
 
 #For glue invocation
-AWS_REGION = "us-gov-west-2"
+AWS_REGION = "us-gov-west-1"
 args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE"])
 sc = SparkContext()
 glueContext = GlueContext(sc)
@@ -46,6 +46,7 @@ def read_template(path):
     return template_data
 
 def get_report_data(glue_conn_name, tmp_dir_path):
+    #Get glue connection details
     import boto3
     client = boto3.client('glue', region_name=AWS_REGION)
     response = client.get_connection(Name=glue_conn_name)
@@ -58,6 +59,7 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     database = "{}".format(url_list[-1])
     user = "{}".format(connection_properties['USERNAME'])
     pwd = "{}".format(connection_properties['PASSWORD'])
+    #Set redshift query params
     connection_redshift_options = {"url": f"jdbc:redshift://{host}:{port}/{database}".format(), "user": user, "password": pwd, "redshiftTmpDir":  tmp_dir_path} 
     # df_header = spark.read.format("csv").option("header","true").load(input_data_path+"/header").fillna("")
     # df_detail = spark.read.format("csv").option("header","true").load(input_data_path+"/detail").fillna("")
@@ -65,13 +67,16 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     df_header = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
     connection_redshift_options["query"] = "select * from {} where PART_SSN='{}'".format(args["DETAIL_TABLE"],args["PART_SSN"])
     df_detail = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
+    #Find aggregate value for the ssn passed to show as last row in report
     df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM"))
-
+    
+    #Convert to dict to be passed to Jinja
     list_data_header = list(map(lambda row: row.asDict(), df_header.collect()))
     list_data_detail = list(map(lambda row: row.asDict(), df_detail.collect()))
     list_data_summed = list(map(lambda row: row.asDict(), df_summed.collect()))
+    
+    #Pass three dict generated to Jinja
     list_data = [list_data_header, list_data_detail, list_data_summed]
-    print(list_data)
     return list_data
     
 def convertHtmlToPdf(sourceHtml, outputFilename):
