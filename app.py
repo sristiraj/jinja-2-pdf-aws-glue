@@ -58,15 +58,13 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     database = "{}".format(url_list[-1])
     user = "{}".format(connection_properties['USERNAME'])
     pwd = "{}".format(connection_properties['PASSWORD'])
-    connection_redshift_options = {"url": URL, "database":database, "user": user, "password": pwd, "redshiftTmpDir": tmp_dir_path} 
+    connection_redshift_options = {"url": f"jdbc:redshift://{host}:{port}/{database}".format(), "user": user, "password": pwd, "redshiftTmpDir":  tmp_dir_path} 
     # df_header = spark.read.format("csv").option("header","true").load(input_data_path+"/header").fillna("")
     # df_detail = spark.read.format("csv").option("header","true").load(input_data_path+"/detail").fillna("")
-    connection_redshift_options["dbtable"] = args["HEADER_TABLE"]
-#     df_header = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF().filter("PART_SSN='"+args["PART_SSN"]+"'")
-    df_header = spark.read.format('jdbc').option("url", URL).option("query", "select * from "+args["HEADER_TABLE"]+" where PART_SSN = '"+args["PART_SSN"]+"'").option("tempdir", tmp_dir_path).load()
-    connection_redshift_options["dbtable"] = args["DETAIL_TABLE"]
-#     df_header = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF().filter("PART_SSN='"+args["PART_SSN"]+"'")
-    df_detail = spark.read.format('jdbc').option("url", URL).option("query", "select * from "+args["DETAIL_TABLE"]+" where PART_SSN = '"+args["PART_SSN"]+"'").option("tempdir", tmp_dir_path).load()
+    connection_redshift_options["query"] = "select * from {} where PART_SSN='{}'".format(args["HEADER_TABLE"],args["PART_SSN"])
+    df_header = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
+    connection_redshift_options["query"] = "select * from {} where PART_SSN='{}'".format(args["DETAIL_TABLE"],args["PART_SSN"])
+    df_detail = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
     df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM"))
 
     list_data_header = list(map(lambda row: row.asDict(), df_header.collect()))
