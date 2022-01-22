@@ -11,21 +11,20 @@ import json
 from xhtml2pdf import pisa
 from io import StringIO
 import boto3
-
+from datetime import datetime
 
 
 #For glue invocation
-AWS_REGION = "us-gov-west-1"
-args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE","POST_DATE_START","POST_DATE_END"])
+AWS_REGION = "us-east-1"
+args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE"])
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 
 temp_pdf = "Report_{}.pdf".format(args["PART_SSN"].replace(" ","_"))
 print(temp_pdf)
-
-
-
+run_dt = datetime.strftime(datetime.now(),"%d/%M/%y")
+run_time = datetime.strftime(datetime.now(),"%h-%m-%s")
 
 def read_template(path):
     '''
@@ -65,18 +64,25 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     # df_detail = spark.read.format("csv").option("header","true").load(input_data_path+"/detail").fillna("")
     connection_redshift_options["query"] = "select * from {} where PART_SSN='{}'".format(args["HEADER_TABLE"],args["PART_SSN"])
     df_header = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
+
+    df_header_cols = [colm.upper() for colm in df_header.columns]
+    df_header = df_header.toDF(*df_header_cols).distinct().fillna("")
     connection_redshift_options["query"] = "select * from {} where PART_SSN='{}'".format(args["DETAIL_TABLE"],args["PART_SSN"])
     df_detail = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
+    df_detail_cols = [colm.upper() for colm in df_detail.columns]
+    df_detail = df_detail.toDF(*df_detail_cols).fillna("")
     #Find aggregate value for the ssn passed to show as last row in report
-    df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM"))
+    df_fund_summed = df_detail.groupBy("FUND").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_FUND_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_FUND_SUM"),round(sum("MATCHING"),2).alias("MATCHING_FUND_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_FUND_TOTAL_SUM")).withColumnRenamed("FUND","FUND_SUM").fillna("")
+    df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM")).fillna("")
     
     #Convert to dict to be passed to Jinja
     list_data_header = list(map(lambda row: row.asDict(), df_header.collect()))
     list_data_detail = list(map(lambda row: row.asDict(), df_detail.collect()))
+    list_data_fund_summed = list(map(lambda row: row.asDict(), df_fund_summed.collect()))
     list_data_summed = list(map(lambda row: row.asDict(), df_summed.collect()))
     
     #Pass three dict generated to Jinja
-    list_data = [list_data_header, list_data_detail, list_data_summed]
+    list_data = [list_data_header, list_data_detail, list_data_fund_summed, list_data_summed, run_dt, run_time]
     return list_data
     
 def convertHtmlToPdf(sourceHtml, outputFilename):
