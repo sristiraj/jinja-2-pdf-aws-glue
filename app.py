@@ -16,7 +16,7 @@ import boto3
 
 #For glue invocation
 AWS_REGION = "us-gov-west-1"
-args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE"])
+args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE","POST_DATE_START","POST_DATE_END"])
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
