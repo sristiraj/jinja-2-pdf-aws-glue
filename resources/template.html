@@ -38,13 +38,13 @@
 </head>
 
 <body>
-  {% for value in list_data[0]%}
   <div id="header">
     <div id="header-right">
-      Run Date: 05/12/20 <br>
-      Run Time: 23:53:!5 <br>
+      Run Date: {{ run_dt }} <br>
+      Run Time: {{ run_time }} <br>
       Page: 1
     </div>
+	{% for value in list_data[0]%}
     <div id="header-left">
       TSP Report No:  {{value["TSP_REPORT_NUMBER"]}}  <br>
       Payroll Office No: {{value["PAYROLL_OFFICE_NUMBER"]}} <br>
@@ -124,7 +124,36 @@
       </tr>
 
       {% endfor %}
+		
+	  {% for value in list_data[2]%}
+      <tr>
+        <!--PO Nbr-->
+        <td></td>
+        <!--JV #-->
+        <td></td>
+        <!--Post Date-->
+        <td></td>
+        <!--Pay Date-->
+        <td></td>
+        <!--activity-->
+        <td></td>
+        <!--AE-->
+        <td></td>
+        <!--rv-->
+        <td></td>
+        <!--Fund-->
+        <td>{{value["FUND_SUM"]}}</td>
+        <!--employee-->
+        <td>{{value["EMPLOYEE_FUND_SUM"]}}</td>
+        <!--automatic-->
+        <td>{{value["AUTOMATIC_FUND_SUM"]}}</td>
+        <!--matching-->
+        <td>{{value["MATCHING_FUND_SUM"]}}</td>
+        <!--total-->
+        <td>{{value["ROW_FUND_TOTAL_SUM"]}}</td>
+      </tr>
 
+      {% endfor %}
     </tbody>
     <tfoot>
       <tr>
@@ -136,7 +165,7 @@
         <td></td>
         <td></td>
         <td>******</td>
-		{% for value in list_data[2]%}
+		{% for value in list_data[3]%}
         <td>-----------<br>{{value["EMPLOYEE_SUM"]}}</td>
         <td>-----------<br>{{value["AUTOMATIC_SUM"]}}</td>
         <td>-----------<br>{{value["MATCHING_SUM"]}}</td>
