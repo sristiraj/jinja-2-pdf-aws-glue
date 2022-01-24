@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 client = boto3.client('glue')
 
 # Variables for the job: 
-glueJobName = "generate_PDF"
+glueJobName = os.environ["glue_job_name"]
 
 def read_s3(s3_file):
     s3 = boto3.client("s3")
