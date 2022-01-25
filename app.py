@@ -16,7 +16,7 @@ from datetime import datetime
 
 #For glue invocation
 AWS_REGION = "us-east-1"
-args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE"])
+args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE","POST_DATE_START","POST_DATE_END"])
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
@@ -66,14 +66,14 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     df_header = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
 
     df_header_cols = [colm.upper() for colm in df_header.columns]
-    df_header = df_header.toDF(*df_header_cols).distinct().fillna("")
-    connection_redshift_options["query"] = "select * from {} where PART_SSN='{}'".format(args["DETAIL_TABLE"],args["PART_SSN"])
+    df_header = df_header.toDF(*df_header_cols).distinct().fillna(" ")
+    connection_redshift_options["query"] = "select * from {} where PART_SSN='{}' and post_date between to_date('{}','YYYY-MM-DD') and to_date('{}','YYYY-MM-DD')".format(args["DETAIL_TABLE"],args["PART_SSN"], args["POST_DATE_START"], args["POST_DATE_END"])
     df_detail = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
     df_detail_cols = [colm.upper() for colm in df_detail.columns]
-    df_detail = df_detail.toDF(*df_detail_cols).fillna("")
+    df_detail = df_detail.toDF(*df_detail_cols).fillna(" ").fillna(0)
     #Find aggregate value for the ssn passed to show as last row in report
-    df_fund_summed = df_detail.groupBy("FUND").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_FUND_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_FUND_SUM"),round(sum("MATCHING"),2).alias("MATCHING_FUND_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_FUND_TOTAL_SUM")).withColumnRenamed("FUND","FUND_SUM").fillna("")
-    df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM")).fillna("")
+    df_fund_summed = df_detail.groupBy("FUND").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_FUND_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_FUND_SUM"),round(sum("MATCHING"),2).alias("MATCHING_FUND_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_FUND_TOTAL_SUM")).withColumnRenamed("FUND","FUND_SUM").fillna(" ").fillna(0)
+    df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM")).fillna(" ").fillna(0)
     
     #Convert to dict to be passed to Jinja
     list_data_header = list(map(lambda row: row.asDict(), df_header.collect()))
