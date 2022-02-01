@@ -14,6 +14,8 @@ import boto3
 from datetime import datetime
 
 
+run_dt = datetime.strftime(datetime.now(),'%d/%m/%y')
+run_time = datetime.strftime(datetime.now(),'%H:%M:%S')
 #For glue invocation
 AWS_REGION = "us-east-1"
 args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE","POST_DATE_START","POST_DATE_END"])
@@ -23,8 +25,7 @@ spark = glueContext.spark_session
 
 temp_pdf = "Report_{}.pdf".format(args["PART_SSN"].replace(" ","_"))
 print(temp_pdf)
-run_dt = datetime.strftime(datetime.now(),"%d/%M/%y")
-run_time = datetime.strftime(datetime.now(),"%h-%m-%s")
+
 
 def read_template(path):
     '''
@@ -107,7 +108,8 @@ template = Template(template_data)
 
 list_data = get_report_data(args["GLUE_CONN_NAME"],args["TMP_DIR_PATH"])
 # print(type(list_data))
-template_out = template.render(list_data=list_data)
+template_out = template.render(list_data=list_data, report_run_dt=run_dt, report_run_time=run_time)
+
 
 with open("output.html","w+") as f:
     f.write(template_out)
