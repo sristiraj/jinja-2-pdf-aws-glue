@@ -16,9 +16,10 @@
     }
 
     #header-main {
-      float: center;
+      float: left;
       margin-left: auto;
       margin-right: auto;
+	  width:50%;
       text-align: center;
     }
 
@@ -26,23 +27,34 @@
       float: left;
       margin-left: auto;
       margin-right: auto;
+	  width:25%;
     }
 
     #header-right {
       float: right;
       margin-left: auto;
       margin-right: 20px;
+	  width:25%;
       text-align: right;
     }
+	
+	table { page-break-inside:auto; }
+    
+	tr    { page-break-inside:avoid; page-break-after:auto; }
+    
+	thead { display:table-header-group; }
+    
+	tfoot { display:table-footer-group; }
   </style>
 </head>
 
 <body>
+
   <div id="header">
     <div id="header-right">
-      Run Date: {{ run_dt }} <br>
-      Run Time: {{ run_time }} <br>
-      Page: 1
+      Run Date: {{ report_run_dt }} <br>
+      Run Time: {{ report_run_time }} <br>
+      Page: <pdf:pagenumber>
     </div>
 	{% for value in list_data[0]%}
     <div id="header-left">
@@ -59,7 +71,7 @@
       SSN: {{value["PART_SSN"]}}
     </div>
   </div>
-  <table class="center">
+  <table class="center" >
     <caption>
       ** Sensitive Personnel Data - Use is Restricted ** <br><br>
     </caption>
@@ -78,7 +90,9 @@
   </table>
   {% endfor %}
   <br>
-  <table class="center">
+
+  <table class="center" repeat="1">
+  <thead>
     <tr>
       <th scope="col">PO Nbr<br>--------</th>
       <th scope="col">JV #<br>------</th>
@@ -95,7 +109,10 @@
     </tr>
     </thead>
     <tbody>
+
 	{% for value in list_data[1]%}
+
+	
       <tr>
         <!--PO Nbr-->
         <td></td>
@@ -122,7 +139,7 @@
         <!--total-->
         <td>{{value["ROW_TOTAL"]}}</td>
       </tr>
-
+	  
       {% endfor %}
 		
 	  {% for value in list_data[2]%}
