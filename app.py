@@ -25,7 +25,7 @@ spark = glueContext.spark_session
 
 temp_pdf = "Report_{}.pdf".format(args["PART_SSN"].replace(" ","_"))
 print(temp_pdf)
-temp_html = "Report_{}_.html".format(args["PART_SSN"].replace(" ","_"))
+temp_html = "Report_{}.html".format(args["PART_SSN"].replace(" ","_"))
 
 def read_template(path):
     '''
