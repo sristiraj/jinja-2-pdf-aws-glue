@@ -25,7 +25,7 @@ spark = glueContext.spark_session
 
 temp_pdf = "Report_{}.pdf".format(args["PART_SSN"].replace(" ","_"))
 print(temp_pdf)
-
+temp_html = "Report_{}_.html".format(args["PART_SSN"].replace(" ","_"))
 
 def read_template(path):
     '''
@@ -102,6 +102,18 @@ def write_pdf_s3(filename, path):
     s3 = boto3.client('s3')
     with open(temp_pdf, "rb") as f:
         s3.upload_fileobj(f, s3_bucket, s3_key+"/"+filename)
+
+def write_html_s3(filename, path):
+    import boto3
+    s3 = boto3.resource("s3")
+    s3_bucket_index = path.replace("s3://","").find("/")
+    s3_bucket = path[5:s3_bucket_index+5]
+    s3_key = path[s3_bucket_index+6:]
+    obj = s3.Object(s3_bucket, s3_key+filename)
+    s3 = boto3.client('s3')
+    with open(filename, "rb") as f:
+
+        s3.upload_fileobj(f, s3_bucket, s3_key+"/"+filename)
         
 template_data = read_template(args["TEMPLATE_PATH"])
 template = Template(template_data)
@@ -111,8 +123,9 @@ list_data = get_report_data(args["GLUE_CONN_NAME"],args["TMP_DIR_PATH"])
 template_out = template.render(list_data=list_data, report_run_dt=run_dt, report_run_time=run_time)
 
 
-with open("output.html","w+") as f:
+with open(temp_html,"w+") as f:
     f.write(template_out)
 # pdf=pisa.CreatePDF( StringIO(template_out),open("output.pdf", "wb"))   
 convertHtmlToPdf(template_out, temp_pdf)
 write_pdf_s3(temp_pdf,args["OUTPUT_PDF_PATH"])
+write_html_s3(temp_html,args["OUTPUT_PDF_PATH"])
