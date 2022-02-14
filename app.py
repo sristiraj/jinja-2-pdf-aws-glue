@@ -16,7 +16,7 @@ from datetime import datetime
 
 run_dt = datetime.strftime(datetime.now(),'%d/%m/%y')
 run_time = datetime.strftime(datetime.now(),'%H:%M:%S')
-run_year = datetime.strftime(datetime.now(),'%y')
+run_year = datetime.strftime(datetime.now(),'%Y')
 run_month = datetime.strftime(datetime.now(),'%m')
 run_day = datetime.strftime(datetime.now(),'%d')
 #For glue invocation
