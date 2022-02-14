@@ -9,7 +9,7 @@ import csv
 EVENT_FILE_CSV_DELIMIITER = "|"
 EVENT_FILE_CSV_QUOTE_CHAR = '"'
 
-trigger_switcher={"glue_trigger":"generate_PDF","glue_trigger1":"generate_PDF"}
+trigger_switcher={"05555":"generate_PDF","05001":"generate_PDF"}
 
 #Initiate loggger
 logger = logging.getLogger()
@@ -59,12 +59,13 @@ def lambda_handler(event, context):
         logger.info(f"Event Record: {event_record}".format())
         logger.info("Checking glue job to trigger")
         key_prefix = object_key[:object_key.find("/")]
+        
         # Variables for the job: 
-        glueJobName = trigger_switcher.get(key_prefix)
+        glueJobName = trigger_switcher.get(event_record[5])
         logger.info(f"Job to trigger {glueJobName}".format())
         
         logger.info(f"Start Glue Job {glueJobName}".format())
-        response = client.start_job_run(JobName = glueJobName, Arguments={"--PART_SSN":event_record[1], "--POST_DATE_START":event_record[2], "--POST_DATE_END":event_record[3]})
+        response = client.start_job_run(JobName = glueJobName, Arguments={"--PART_SSN":event_record[4], "--POST_DATE_START":event_record[6], "--POST_DATE_END":event_record[7]})
         logger.info('## STARTED GLUE JOB: ' + glueJobName)
         logger.info('## GLUE JOB RUN ID: ' + response['JobRunId'])
     return "200"
