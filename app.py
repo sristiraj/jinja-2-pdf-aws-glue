@@ -100,7 +100,7 @@ def write_pdf_s3(filename, path):
     s3 = boto3.resource("s3")
     s3_bucket_index = path.replace("s3://","").find("/")
     s3_bucket = path[5:s3_bucket_index+5]
-    s3_key = path[s3_bucket_index+6:]+"year="+run_year+"/month="+run_month+"/day="+run_day+"/"
+    s3_key = path[s3_bucket_index+6:].strip("/")+"/year="+run_year+"/month="+run_month+"/day="+run_day+"/"
     obj = s3.Object(s3_bucket, s3_key+filename)
     s3 = boto3.client('s3')
     with open(temp_pdf, "rb") as f:
@@ -111,7 +111,7 @@ def write_html_s3(filename, path):
     s3 = boto3.resource("s3")
     s3_bucket_index = path.replace("s3://","").find("/")
     s3_bucket = path[5:s3_bucket_index+5]
-    s3_key = path[s3_bucket_index+6:]+"year="+run_year+"/month="+run_month+"/day="+run_day+"/"
+    s3_key = path[s3_bucket_index+6:].strip("/")+"/year="+run_year+"/month="+run_month+"/day="+run_day+"/"
     obj = s3.Object(s3_bucket, s3_key+filename)
     s3 = boto3.client('s3')
     with open(filename, "rb") as f:
