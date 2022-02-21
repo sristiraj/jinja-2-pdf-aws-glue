@@ -42,7 +42,7 @@ def read_s3_event_file(bucket_name, object_key):
     else:
         print("No event record available ")
         event_record = []
-    return event_record
+    return event_record[0].split(",")
 
 # Define Lambda function
 def lambda_handler(event, context):
@@ -60,12 +60,13 @@ def lambda_handler(event, context):
         logger.info("Checking glue job to trigger")
         key_prefix = object_key[:object_key.find("/")]
         
+        print(event_record[5])
         # Variables for the job: 
         glueJobName = trigger_switcher.get(event_record[5])
         logger.info(f"Job to trigger {glueJobName}".format())
         
         logger.info(f"Start Glue Job {glueJobName}".format())
-        response = client.start_job_run(JobName = glueJobName, Arguments={"--PART_SSN":event_record[4], "--POST_DATE_START":event_record[6], "--POST_DATE_END":event_record[7]})
+        response = client.start_job_run(JobName = glueJobName, Arguments={"--PART_SSN":event_record[4], "--POST_DATE_START":event_record[6], "--POST_DATE_END":event_record[7], "--TRIGGER_FILE":f"s3://{bucket_name}/{object_key}".format()})
         logger.info('## STARTED GLUE JOB: ' + glueJobName)
         logger.info('## GLUE JOB RUN ID: ' + response['JobRunId'])
     return "200"
