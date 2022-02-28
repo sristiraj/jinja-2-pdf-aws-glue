@@ -66,7 +66,7 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     connection_redshift_options = {"url": f"jdbc:redshift://{host}:{port}/{database}".format(), "user": user, "password": pwd, "redshiftTmpDir":  tmp_dir_path} 
     # df_header = spark.read.format("csv").option("header","true").load(input_data_path+"/header").fillna("")
     # df_detail = spark.read.format("csv").option("header","true").load(input_data_path+"/detail").fillna("")
-    connection_redshift_options["query"] = "select * from {} where PART_SSN='{}'".format(args["HEADER_TABLE"],args["PART_SSN"])
+    connection_redshift_options["query"] = "select * from {} where ssn='{}'".format(args["HEADER_TABLE"],args["PART_SSN"])
     df_header = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
 
     df_header_cols = [colm.upper() for colm in df_header.columns]
