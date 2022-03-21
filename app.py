@@ -83,7 +83,7 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     
     #Convert to dict to be passed to Jinja
     list_data_header = list(map(lambda row: row.asDict(), df_header.collect()))
-    list_data_detail = sorted(list(map(lambda row: row.asDict(), df_detail1.collect())),key=lambda x: x['POST_DATE']+"~"+x["ACTIVITY"]+"~"+x["FUND"])
+    list_data_detail = sorted(list(map(lambda row: row.asDict(), df_detail1.collect())),key=lambda x: x['POST_DATE']+"~"+x["ACTIVITY"]+"~"+x["FUND"], reverse=True)
     list_data_fund_summed = list(map(lambda row: row.asDict(), df_fund_summed.collect()))
     list_data_summed = list(map(lambda row: row.asDict(), df_summed.collect()))
     
