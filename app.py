@@ -21,7 +21,7 @@ run_month = datetime.strftime(datetime.now(),'%m')
 run_day = datetime.strftime(datetime.now(),'%d')
 #For glue invocation
 AWS_REGION = "us-east-1"
-args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE","POST_DATE_START","POST_DATE_END"])
+args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE","POST_DATE_START","POST_DATE_END","INTERMEDIATE_S3_PATH","TRIGGER_FILE","TRIGGER_ARCHIVE_PATH"])
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
@@ -66,12 +66,12 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     connection_redshift_options = {"url": f"jdbc:redshift://{host}:{port}/{database}".format(), "user": user, "password": pwd, "redshiftTmpDir":  tmp_dir_path} 
     # df_header = spark.read.format("csv").option("header","true").load(input_data_path+"/header").fillna("")
     # df_detail = spark.read.format("csv").option("header","true").load(input_data_path+"/detail").fillna("")
-    connection_redshift_options["query"] = "select * from {} where ssn='{}'".format(args["HEADER_TABLE"],args["PART_SSN"])
+    connection_redshift_options["query"] = "select * from {} where SSN='{}'".format(args["HEADER_TABLE"],args["PART_SSN"])
     df_header = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
 
     df_header_cols = [colm.upper() for colm in df_header.columns]
     df_header = df_header.toDF(*df_header_cols).distinct().fillna(" ")
-    connection_redshift_options["query"] = "select * from {} where PART_SSN='{}' and post_date between to_date('{}','YYYY-MM-DD') and to_date('{}','YYYY-MM-DD')".format(args["DETAIL_TABLE"],args["PART_SSN"], args["POST_DATE_START"], args["POST_DATE_END"])
+    connection_redshift_options["query"] = "select  part_ssn, post_date, activity, fund, sum(employee) employee, sum(automatic) automatic, sum(matching) matching, sum(row_total) row_total from {} where PART_SSN='{}' and post_date between to_date('{}','YYYY-MM-DD') and to_date('{}','YYYY-MM-DD') group by part_ssn, post_date, activity, fund".format(args["DETAIL_TABLE"],args["PART_SSN"], args["POST_DATE_START"], args["POST_DATE_END"])
     df_detail = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
     df_detail_cols = [colm.upper() for colm in df_detail.columns]
     df_detail = df_detail.toDF(*df_detail_cols).fillna(" ").fillna(0)
@@ -117,7 +117,29 @@ def write_html_s3(filename, path):
     with open(filename, "rb") as f:
 
         s3.upload_fileobj(f, s3_bucket, s3_key+"/"+filename)
-        
+
+def move_trigger_file(trigger_file, trigger_arch_path):
+    import boto3
+    s3 = boto3.resource("s3")
+    s3_bucket_index = trigger_file.replace("s3://","").find("/")
+    s3_bucket = trigger_file[5:s3_bucket_index+5]
+    s3_key = trigger_file[s3_bucket_index+6:].strip("/")
+    trigger_file_name = trigger_file[trigger_file.rfind("/")+1:]
+    print(trigger_file_name)
+    
+    s3_bucket_index = trigger_arch_path.replace("s3://","").find("/")
+    s3_arch_bucket = trigger_arch_path[5:s3_bucket_index+5]
+    s3_arch_key = trigger_arch_path[s3_bucket_index+6:].strip("/")
+    
+    copy_source = {
+    'Bucket': s3_bucket,
+    'Key': s3_key
+    }
+    
+    destbucket = s3.Bucket(s3_arch_bucket)
+    destbucket.copy(copy_source, trigger_file_name)
+    s3.Object(s3_bucket,s3_key).delete()
+    
 template_data = read_template(args["TEMPLATE_PATH"])
 template = Template(template_data)
 
@@ -132,3 +154,4 @@ with open(temp_html,"w+") as f:
 convertHtmlToPdf(template_out, temp_pdf)
 write_pdf_s3(temp_pdf,args["OUTPUT_PDF_PATH"])
 write_html_s3(temp_html,args["OUTPUT_PDF_PATH"])
+move_trigger_file(args["TRIGGER_FILE"],args["TRIGGER_ARCHIVE_PATH"])
