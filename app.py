@@ -75,7 +75,7 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     df_detail = glueContext.create_dynamic_frame_from_options(connection_type="redshift", connection_options=connection_redshift_options).toDF()
     df_detail_cols = [colm.upper() for colm in df_detail.columns]
     df_detail = df_detail.toDF(*df_detail_cols).fillna(" ").fillna(0)
-    df_detail_summed = df_detail.groupBy("PART_SSN","ACTIVITY","POST_DATE").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC"),round(sum("MATCHING"),2).alias("MATCHING"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL")).withColumn("FUND",lit(".")).withColumn("AE",lit(".")).withColumn("RV",lit(".")).fillna(" ").fillna(0)
+    df_detail_summed = df_detail.groupBy("PART_SSN","ACTIVITY","POST_DATE").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC"),round(sum("MATCHING"),2).alias("MATCHING"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL")).withColumn("FUND",lit(None)).withColumn("AE",lit(".")).withColumn("RV",lit(".")).fillna(" ").fillna(0)
     df_detail1 = df_detail.unionByName(df_detail_summed).orderBy("POST_DATE","ACTIVITY","FUND")
     #Find aggregate value for the ssn passed to show as last row in report
     df_fund_summed = df_detail.groupBy("FUND").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_FUND_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_FUND_SUM"),round(sum("MATCHING"),2).alias("MATCHING_FUND_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_FUND_TOTAL_SUM")).withColumnRenamed("FUND","FUND_SUM").fillna(" ").fillna(0)
@@ -83,7 +83,7 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     
     #Convert to dict to be passed to Jinja
     list_data_header = list(map(lambda row: row.asDict(), df_header.collect()))
-    list_data_detail = sorted(list(map(lambda row: row.asDict(), df_detail1.collect())),key=lambda x: x['POST_DATE']+"~"+x["ACTIVITY"]+"~"+x["FUND"], reverse=True)
+    list_data_detail = sorted(list(map(lambda row: row.asDict(), df_detail1.collect())),key=lambda x: x['POST_DATE']+"~"+x["ACTIVITY"]+"~"+x["FUND"])
     list_data_fund_summed = list(map(lambda row: row.asDict(), df_fund_summed.collect()))
     list_data_summed = list(map(lambda row: row.asDict(), df_summed.collect()))
     
