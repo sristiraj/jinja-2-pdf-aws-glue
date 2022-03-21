@@ -113,11 +113,14 @@
     </tr>
     </thead>
     <tbody>
-	{% set prev_post_dt, prev_activity, prev_pay_dt, prev_ae, prev_rv = 'dummy','dummy','dummy','dummy','dummy'  %}
+	{% set prev_value = {'POST_DATE':'dummy','ACTIVITY':'dummy','PAY_DATE':'dummy','AE':'dummy','RV':'dummy'}  %}
 	{% for value in list_data[1]%}
-	
-	{% set curr_post_dt, curr_activity, curr_pay_dt, curr_ae, curr_rv = value["POST_DATE"],value["ACTIVITY"],value["PAY_DATE"],value["AE"],value["RV"]  %}
-	{% if prev_post_dt!=curr_post_dt or prev_activity!=curr_activity or prev_pay_dt!=curr_pay_dt or prev_ae!=curr_ae or prev_rv!=curr_rv %}
+	{% if loop.index0 > 0  %}
+	{% set prev_value = loop.previtem %}
+	{% endif %}
+	{% set prev_post_dt, prev_activity, prev_pay_dt, prev_ae, prev_rv = prev_value["POST_DATE"],prev_value["ACTIVITY"],prev_value["PAY_DATE"],prev_value["AE"],prev_value["RV"]  %}
+	{% set curr_post_dt, curr_activity, curr_pay_dt, curr_ae, curr_rv =  value["POST_DATE"],value["ACTIVITY"],value["PAY_DATE"],value["AE"],value["RV"]  %}
+	{% if prev_post_dt!=curr_post_dt or prev_activity!=curr_activity   %}
       <tr>
         <!--PO Nbr-->
         <td></td>
@@ -134,7 +137,7 @@
         <!--rv-->
         <td>{{value["RV"]}}</td>
         <!--Fund-->
-        <td>{{value["FUND"].replace("None","")}}</td>
+        <td>{{value["FUND"].replace("ZZ","")}}</td>
         <!--employee-->
         <td>{{value["EMPLOYEE"]}}</td>
         <!--automatic-->
@@ -161,7 +164,7 @@
         <!--rv-->
         <td></td>
         <!--Fund-->
-        <td>{{value["FUND"].replace("None","")}}</td>
+        <td>{{value["FUND"].replace("ZZ","")}}</td>
         <!--employee-->
         <td>{{value["EMPLOYEE"]}}</td>
         <!--automatic-->
