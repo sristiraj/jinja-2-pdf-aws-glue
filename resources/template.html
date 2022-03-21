@@ -7,7 +7,12 @@
       margin-left: auto;
       margin-right: auto;
     }
-
+	
+	@page {
+		size: letter landscape;
+		margin: 2cm;
+	}
+	
     #header {
       padding-top: 10px;
       padding-bottom: 10px;
@@ -49,7 +54,6 @@
 </head>
 
 <body>
-
   <div id="header">
     <div id="header-right">
       Run Date: {{ report_run_dt }} <br>
@@ -109,10 +113,11 @@
     </tr>
     </thead>
     <tbody>
-
+	{% set prev_post_dt, prev_activity, prev_pay_dt, prev_ae, prev_rv = 'dummy','dummy','dummy','dummy','dummy'  %}
 	{% for value in list_data[1]%}
-
 	
+	{% set curr_post_dt, curr_activity, curr_pay_dt, curr_ae, curr_rv = value["POST_DATE"],value["ACTIVITY"],value["PAY_DATE"],value["AE"],value["RV"]  %}
+	{% if prev_post_dt!=curr_post_dt or prev_activity!=curr_activity or prev_pay_dt!=curr_pay_dt or prev_ae!=curr_ae or prev_rv!=curr_rv %}
       <tr>
         <!--PO Nbr-->
         <td></td>
@@ -129,7 +134,7 @@
         <!--rv-->
         <td>{{value["RV"]}}</td>
         <!--Fund-->
-        <td>{{value["FUND"]}}</td>
+        <td>{{value["FUND"].replace("None","")}}</td>
         <!--employee-->
         <td>{{value["EMPLOYEE"]}}</td>
         <!--automatic-->
@@ -139,7 +144,35 @@
         <!--total-->
         <td>{{value["ROW_TOTAL"]}}</td>
       </tr>
-	  
+	 {% else %}
+		<tr>
+        <!--PO Nbr-->
+        <td></td>
+        <!--JV #-->
+        <td></td>
+        <!--Post Date-->
+        <td></td>
+        <!--Pay Date-->
+        <td></td>
+        <!--activity-->
+        <td></td>
+        <!--AE-->
+        <td></td>
+        <!--rv-->
+        <td></td>
+        <!--Fund-->
+        <td>{{value["FUND"].replace("None","")}}</td>
+        <!--employee-->
+        <td>{{value["EMPLOYEE"]}}</td>
+        <!--automatic-->
+        <td>{{value["AUTOMATIC"]}}</td>
+        <!--matching-->
+        <td>{{value["MATCHING"]}}</td>
+        <!--total-->
+        <td>{{value["ROW_TOTAL"]}}</td>
+      </tr>
+	 {% endif %}	
+	 {% set prev_post_dt, prev_activity, prev_pay_dt, prev_ae, prev_rv = value["POST_DATE"],value["ACTIVITY"],value["PAY_DATE"],value["AE"],value["RV"]  %}
       {% endfor %}
 		
 	  {% for value in list_data[2]%}
