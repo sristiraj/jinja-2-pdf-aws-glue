@@ -76,7 +76,7 @@ def get_report_data(glue_conn_name, tmp_dir_path):
     df_detail_cols = [colm.upper() for colm in df_detail.columns]
     df_detail = df_detail.toDF(*df_detail_cols).fillna(" ").fillna(0)
     df_detail_summed = df_detail.groupBy("PART_SSN","ACTIVITY","POST_DATE").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC"),round(sum("MATCHING"),2).alias("MATCHING"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL")).withColumn("FUND",lit(".")).withColumn("AE",lit(".")).withColumn("RV",lit(".")).fillna(" ").fillna(0)
-    df_detail1 = df_detail.unionByName(df_detail_summed)
+    df_detail1 = df_detail.unionByName(df_detail_summed).orderBy("POST_DATE","ACTIVITY","FUND")
     #Find aggregate value for the ssn passed to show as last row in report
     df_fund_summed = df_detail.groupBy("FUND").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_FUND_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_FUND_SUM"),round(sum("MATCHING"),2).alias("MATCHING_FUND_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_FUND_TOTAL_SUM")).withColumnRenamed("FUND","FUND_SUM").fillna(" ").fillna(0)
     df_summed = df_detail.groupBy("PART_SSN").agg(round(sum("EMPLOYEE"),2).alias("EMPLOYEE_SUM"),round(sum("AUTOMATIC"),2).alias("AUTOMATIC_SUM"),round(sum("MATCHING"),2).alias("MATCHING_SUM"),round(sum("ROW_TOTAL"),2).alias("ROW_TOTAL_SUM")).fillna(" ").fillna(0)
