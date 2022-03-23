@@ -74,7 +74,8 @@
       &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
       SSN: {{value["PART_SSN"]}}
     </div>
-  </div>
+	</div>
+  
   <table class="center" >
     <caption>
       ** Sensitive Personnel Data - Use is Restricted ** <br><br>
@@ -163,19 +164,31 @@
         <td></td>
         <!--rv-->
         <td></td>
+		{% if value["FUND"] == "ZZ" %}
         <!--Fund-->
-        <td>{{value["FUND"].replace("ZZ","")}}</td>
+        <td >-----------<br>{{value["FUND"].replace("ZZ","*****")}}<br>-----------</td>
         <!--employee-->
-        <td>{{value["EMPLOYEE"]}}</td>
-        <!--automatic-->
-        <td>{{value["AUTOMATIC"]}}</td>
-        <!--matching-->
-        <td>{{value["MATCHING"]}}</td>
-        <!--total-->
-        <td>{{value["ROW_TOTAL"]}}</td>
+        <td >-----------<br>{{value["EMPLOYEE"]}}<br>-----------</td>
+        <!--automatic-->            
+        <td >-----------<br>{{value["AUTOMATIC"]}}<br>-----------</td>
+        <!--matching-->             
+        <td >-----------<br>{{value["MATCHING"]}}<br>-----------</td>
+        <!--total-->                
+        <td >-----------<br>{{value["ROW_TOTAL"]}}<br>-----------</td>
+		{% else %}
+		<!--Fund-->
+        <td >{{value["FUND"].replace("ZZ","*****")}}</td>
+        <!--employee-->
+        <td >{{value["EMPLOYEE"]}}</td>
+        <!--automatic-->            
+        <td >{{value["AUTOMATIC"]}}</td>
+        <!--matching-->             
+        <td >{{value["MATCHING"]}}</td>
+        <!--total-->                
+        <td >{{value["ROW_TOTAL"]}}</td>
+		{% endif %}
       </tr>
 	 {% endif %}	
-	 {% set prev_post_dt, prev_activity, prev_pay_dt, prev_ae, prev_rv = value["POST_DATE"],value["ACTIVITY"],value["PAY_DATE"],value["AE"],value["RV"]  %}
       {% endfor %}
 		
 	  {% for value in list_data[2]%}
