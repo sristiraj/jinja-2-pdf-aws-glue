@@ -49,11 +49,11 @@ def lambda_handler(event, context):
     logger.info(event)
     logger.info('## INITIATED BY EVENT: ')
     logger.info("Read Event Source")
-    eventSource = event.get("Records",[{"eventSource":"unknown"}])[0].get("eventSource","unknown")
+    eventSource = event.get("event","unknown").get("source","unknown")
     
     if eventSource=="aws:s3":
-        bucket_name = event["Records"][0]["s3"]["bucket"]["name"]
-        object_key =  event["Records"][0]["s3"]["object"]["key"]
+        bucket_name = event["event"]["detail"]["requestParameters"]["bucketName"]
+        object_key =  event["event"]["detail"]["requestParameters"]["key"]
         event_record = read_s3_event_file(bucket_name, object_key)   
         print(event_record)
         logger.info(f"Event Record: {event_record}".format())
