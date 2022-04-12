@@ -1,0 +1,141 @@
+<tbody>
+	{% set prev_value = {'POST_DATE':'dummy','ACTIVITY':'Current Account Balance','PAY_DATE':'dummy','AE':'dummy','RV':'dummy'}  %}
+	{% for value in list_data[1]%}
+	{% if loop.index0 == 0  %}
+	
+      <tr>
+        <!--PO Nbr-->
+        <td></td>
+        <!--JV #-->
+        <td></td>
+        <!--Post Date-->
+        <td>{{value["POST_DATE1"]}}</td>
+        <!--Pay Date-->
+        <td>{{value["PAY_DATE1"]}}</td>
+        <!--activity-->
+        <td>Current Account Balance</td>
+        <!--AE-->
+        <td>{{value["AE1"]}}</td>
+        <!--rv-->
+        <td>{{value["RV1"]}}</td>
+        <!--Fund-->
+        <td>{{value["FUND_SHORT_NAME"].replace("ZZ","")}}</td>
+        <!--employee-->
+        <td>{{value["EMPLOYEE_BALANCE"]}}</td>
+        <!--automatic-->
+        <td>{{value["AUTOMATIC_BALANCE"]}}</td>
+        <!--matching-->
+        <td>{{value["MATCHING_BALANCE"]}}</td>
+        <!--total-->
+        <td>{{value["ACT_BALA_ROW_TOTAL"]}}</td>
+      </tr>
+	{% else %}
+		<tr>
+        <!--PO Nbr-->
+        <td></td>
+        <!--JV #-->
+        <td></td>
+        <!--Post Date-->
+        <td>{{value["POST_DATE1"]}}</td>
+        <!--Pay Date-->
+        <td>{{value["PAY_DATE1"]}}</td>
+        <!--activity-->
+        <td>{{value["ACTIVITY1"]}}</td>
+        <!--AE-->
+        <td>{{value["AE1"]}}</td>
+        <!--rv-->
+        <td>{{value["RV1"]}}</td>
+        <!--Fund-->
+        <td></td>
+        <!--employee-->
+        <td>{{value["EMPLOYEE_BALANCE"]}}</td>
+        <!--automatic-->
+        <td>{{value["AUTOMATIC_BALANCE"]}}</td>
+        <!--matching-->
+        <td>{{value["MATCHING_BALANCE"]}}</td>
+        <!--total-->
+        <td>{{value["ACT_BAL_ROW_TOTAL"]}}</td>
+      </tr>
+	 {% endif %}	
+    {% endfor %}
+	<tr>
+        <!--PO Nbr-->
+        <td></td>
+        <!--JV #-->
+        <td></td>
+        <!--Post Date-->
+        <td></td>
+        <!--Pay Date-->
+        <td></td>
+        <!--activity-->
+        <td></td>
+        <!--AE-->
+        <td></td>
+        <!--rv-->
+        <td></td>
+        <!--Fund-->
+        <td>********</td>
+        <!--employee-->
+        <td></td>
+        <!--automatic-->
+        <td></td>
+        <!--matching-->
+        <td></td>
+        <!--total-->
+        <td></td>
+      </tr>
+{% for value in list_data[6]%}
+      <tr>
+        <!--PO Nbr-->
+        <td></td>
+        <!--JV #-->
+        <td></td>
+        <!--Post Date-->
+        <td></td>
+        <!--Pay Date-->
+        <td></td>
+        <!--activity-->
+        <td></td>
+        <!--AE-->
+        <td></td>
+        <!--rv-->
+        <td></td>
+        <!--Fund-->
+        <td>{{value["FUND_SUM"]}}</td>
+        <!--employee-->
+        <td>{{value["EMPLOYEE_BALANCE_TOTAL"]}}</td>
+        <!--automatic-->
+        <td>{{value["AUTOMATIC_BALANCE_TOTAL"]}}</td>
+        <!--matching-->
+        <td>{{value["MATCHING_BALANCE_TOTAL"]}}</td>
+        <!--total-->
+        <td>{{value["ACT_BAL_ROW_TOTAL"]}}</td>
+      </tr>
+{% endfor %}
+	<tr>
+        <!--PO Nbr-->
+        <td></td>
+        <!--JV #-->
+        <td></td>
+        <!--Post Date-->
+        <td></td>
+        <!--Pay Date-->
+        <td></td>
+        <!--activity-->
+        <td></td>
+        <!--AE-->
+        <td></td>
+        <!--rv-->
+        <td></td>
+        <!--Fund-->
+        <td>********</td>
+        <!--employee-->
+        <td></td>
+        <!--automatic-->
+        <td></td>
+        <!--matching-->
+        <td></td>
+        <!--total-->
+        <td></td>
+      </tr>
+</tbody>	  
