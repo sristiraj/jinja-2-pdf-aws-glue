@@ -1,0 +1,16 @@
+{% set prev_value = {'plan_year':'dummy','activity':'dummy','employee_contribution':'dummy','employee_contribution':'dummy','matching_dollar_contribution':'dummy','row_total':'dummy'}  %}
+{% set sum_sub_total = {'sum_employee_contribution':0,'sum_employee_contribution':0,'sum_matching_dollar_contribution':0,'sum_row_total':0} %}
+
+
+
+{% if loop.index0 > 0  %}
+	{% set prev_value = loop.previtem %}
+{% endif %}
+{% set prev_plan_year, prev_activity, prev_employee_contribution, prev_agency_automatic_matching, prev_matching_dollar_contribution,prev_row_total = prev_value["plan_year"],prev_value["activity"],prev_value["employee_contribution"],prev_value["agency_automatic_matching"],prev_value["matching_dollar_contribution"], prev_value["row_total"]  %}
+{% set curr_plan_year, curr_activity, curr_employee_contribution, curr_agency_automatic_matching, curr_matching_dollar_contribution,curr_row_total =  value["plan_year"],value["activity"],value["employee_contribution"],value["agency_automatic_matching"],value["matching_dollar_contribution"], value["row_total"]  %}
+
+{% set sum_sub_total = {'sum_employee_contribution':sum_sub_total['sum_employee_contribution']+curr_employee_contribution,'agency_automatic_matching':curr_agency_automatic_matching+sum_sub_total["sum_employee_contribution"],'sum_matching_dollar_contribution':curr_matching_dollar_contribution+sum_sub_total["sum_matching_dollar_contribution"],'sum_row_total':curr_row_total+sum_sub_total["sum_row_total"]} %}
+
+{% if prev_plan_year !=   curr_plan_year%}
+	
+{% endif %}
