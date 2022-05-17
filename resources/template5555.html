@@ -1,221 +1,113 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <style>
-    .center {
-      margin-left: auto;
-      margin-right: auto;
-    }
-	
-	@page {
-		size: letter landscape;
-		margin: 2cm;
-	}
-	
-    #header {
-      padding-top: 10px;
-      padding-bottom: 10px;
-      padding-left: 25px;
-      overflow: auto;
-    }
-
-    #header-main {
-      float: left;
-      margin-left: auto;
-      margin-right: auto;
-	  width:50%;
-      text-align: center;
-    }
-
-    #header-left {
-      float: left;
-      margin-left: auto;
-      margin-right: auto;
-	  width:25%;
-    }
-
-    #header-right {
-      float: right;
-      margin-left: auto;
-      margin-right: 20px;
-	  width:25%;
-      text-align: right;
-    }
-	
-	table { page-break-inside:auto; }
-    
-	tr    { page-break-inside:avoid; page-break-after:auto; }
-    
-	thead { display:table-header-group; }
-    
-	tfoot { display:table-footer-group; }
-  </style>
-</head>
-
-<body>
-  
- 
   <table class="center" repeat="1">
   <thead>
     <tr>
-      <th scope="col">x</th>
-      <th scope="col">y</th>
-      <th scope="col">z</th>
-      <th scope="col">w</th>
+      <th scope="col">Plan Year</th>
+      <th scope="col">Activity</th>
+      <th scope="col">Employee Contribution</th>
+      <th scope="col">Agency Automatic</th>
+      <th scope="col">Matching Dollar Contribution</th>
+      <th scope="col">Row Total</th>
     </tr>
     </thead>
     <tbody>
-	{% set prev_value = {'X':'dummy','Y':'dummy','PAY_DZATE':'dummy','W':'dummy'}  %}
+	{% set prev_value = {'plan_year':'dummy','activity':'dummy','employee_contribution':'dummy','agency_automatic':'dummy','matching_dollar_contribution':'dummy','row_total':'dummy'}  %}
 
-	{% set sum_Z = namespace(value=0) %}
+	{% set sum_emp_contrib = namespace(value=0) %}
+  {% set sum_agency_auto= namespace(value=0) %}
+  {% set sum_match_dollar_contrib = namespace(value=0) %}
+  {% set sum_row_total = namespace(value=0) %}
+
 	{% set ln = list_data[0]|length %}
 	{% for value in list_data[0] %}
 		{% set prev_value = loop.previtem %}
 		{% if loop.index0 == ln-1%}
-		{% set next_value = {"X":value["X"],"Y":0,"Z":0,"W":0} %}
+		{% set next_value = {"plan_year":value["plan_year"],"activity":0,"employee_contribution":0,"agency_automatic":0, "matching_dollar_contribution":0, "row_total":0} %}
 		{% else %}
 		{% set next_value = loop.nextitem %}
 		{% endif %}
 	
-		{% set curr_X, curr_Y, curr_Z, curr_W = value["X"],value["Y"],value["Z"],value["W"]  %}
-		{% set next_X, next_Y, next_Z, next_W = next_value["X"],next_value["Y"],next_value["Z"],next_value["W"]  %}
+		{% set curr_plan_year, curr_activity, curr_emp_contrib, curr_agency_auto, curr_match_dollar_contrib, curr_row_total = value["plan_year"],value["activity"],value["employee_contribution"],value["agency_automatic"],value["matching_dollar_contribution"],value["row_total"]  %}
+		{% set next_plan_year, next_activity, next_emp_contrib, next_agency_auto, next_match_dollar_contrib, next_row_total = next_value["plan_year"],next_value["activity"],next_value["employee_contribution"],next_value["agency_automatic"],next_value["matching_dollar_contribution"],next_value["row_total"]  %}
 		
-    {{sum_Z.value}}
-    {{curr_Z}}
-    {% set sum_Z.value = sum_Z.value + curr_Z|int %}
-    {{sum_Z.value}}
+
+    {% set sum_emp_contrib.value = sum_emp_contrib.value + curr_emp_contrib|float %}
+    {% set sum_agency_auto.value = sum_agency_auto.value + curr_agency_auto|float %}
+    {% set sum_match_dollar_contrib.value = sum_match_dollar_contrib.value + curr_match_dollar_contrib|float %}
+    {% set sum_row_total.value = sum_row_total.value + curr_row_total|float %}
+
 	<tr>
-    {% if loop.index0 > 0  and curr_X == loop.previtem["X"] %}
-    <th scope="col"><br>--------</th>
+    {% if loop.index0 > 0  and curr_plan_year == loop.previtem["plan_year"] %}
+    <th scope="col"></th>
     {% else %}
-      <th scope="col">{{value["X"]}}<br>--------</th>
+      <th scope="col">{{value["plan_year"]}}</th>
     {% endif %}  
-      <th scope="col">{{value["Y"]}}<br>------</th>
-      <th scope="col">{{value["Z"]}}<br>------</th>
-      <th scope="col">{{value["W"]}}<br>------</th>
+      <th scope="col">{{value["activity"]}}</th>
+      <th scope="col">{{value["employee_contribution"]}}</th>
+      <th scope="col">{{value["agency_automatic"]}}</th>
+      <th scope="col">{{value["matching_dollar_contribution"]}}</th>
+      <th scope="col">{{value["row_total"]}}</th>
     </tr>
-	{% if loop.index0 > 0  and curr_X!= next_X %}
+	{% if loop.index0 > 0  and curr_plan_year!= next_plan_year %}
+  <tr>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+  </tr>
 	<tr>
-      <th scope="col">{{curr_X}}<br>--------</th>
-      <th scope="col">****<br>------</th>
-      <th scope="col">{{sum_Z.value}}<br>------</th>
-      <th scope="col">****<br>------</th>
+      <th scope="col">{{curr_plan_year}}</th>
+      <th scope="col">****</th>
+      <th scope="col">{{sum_emp_contrib.value}}</th>
+      <th scope="col">{{sum_agency_auto.value}}</th>
+      <th scope="col">{{sum_match_dollar_contrib.value}}</th>
+      <th scope="col">{{sum_row_total.value}}</th>
     </tr>
+    <tr>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+    </tr> 
 	{% endif %}
 
   {% if loop.index0 > 0  and loop.index0 == ln-1 %}
+  <tr>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+    <th scope="col">-------------</th>
+  </tr>
 	<tr>
-      <th scope="col">{{curr_X}}<br>--------</th>
-      <th scope="col">****<br>------</th>
-      <th scope="col">{{sum_Z.value}}<br>------</th>
-      <th scope="col">****<br>------</th>
+    <th scope="col">{{curr_plan_year}}</th>
+    <th scope="col">****</th>
+    <th scope="col">{{sum_emp_contrib.value}}</th>
+    <th scope="col">{{sum_agency_auto.value}}</th>
+    <th scope="col">{{sum_match_dollar_contrib.value}}</th>
+    <th scope="col">{{sum_row_total.value}}</th>
+    </tr>
+    <tr>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
+      <th scope="col">-------------</th>
     </tr>
 	{% endif %}
 
-  {% if (loop.index0 > 0  and curr_X != next_X) or (loop.index0 > 0  and loop.index0 == ln-1) %}
-  {% set sum_Z.value = 0 %}
+  {% if (loop.index0 > 0  and curr_plan_year != next_plan_year) or (loop.index0 > 0  and loop.index0 == ln-1) %}
+	{% set sum_emp_contrib.value = 0 %}
+  {% set sum_agency_auto.value = 0 %}
+  {% set sum_match_dollar_contrib.value = 0 %}
+  {% set sum_row_total.value = 0 %}
   {% endif %}
 	{% endfor %}
     </tbody>
     
   </table>
-</body>
-
-</html>
-
-
-
-
-
-
-
-
-
-
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-
-
-
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-
-
-
-
-
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
-        <!-- -->
-        <td></td>
