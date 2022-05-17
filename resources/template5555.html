@@ -1,16 +1,221 @@
-{% set prev_value = {'plan_year':'dummy','activity':'dummy','employee_contribution':'dummy','employee_contribution':'dummy','matching_dollar_contribution':'dummy','row_total':'dummy'}  %}
-{% set sum_sub_total = {'sum_employee_contribution':0,'sum_employee_contribution':0,'sum_matching_dollar_contribution':0,'sum_row_total':0} %}
+<!DOCTYPE html>
+<html>
 
-
-
-{% if loop.index0 > 0  %}
-	{% set prev_value = loop.previtem %}
-{% endif %}
-{% set prev_plan_year, prev_activity, prev_employee_contribution, prev_agency_automatic_matching, prev_matching_dollar_contribution,prev_row_total = prev_value["plan_year"],prev_value["activity"],prev_value["employee_contribution"],prev_value["agency_automatic_matching"],prev_value["matching_dollar_contribution"], prev_value["row_total"]  %}
-{% set curr_plan_year, curr_activity, curr_employee_contribution, curr_agency_automatic_matching, curr_matching_dollar_contribution,curr_row_total =  value["plan_year"],value["activity"],value["employee_contribution"],value["agency_automatic_matching"],value["matching_dollar_contribution"], value["row_total"]  %}
-
-{% set sum_sub_total = {'sum_employee_contribution':sum_sub_total['sum_employee_contribution']+curr_employee_contribution,'agency_automatic_matching':curr_agency_automatic_matching+sum_sub_total["sum_employee_contribution"],'sum_matching_dollar_contribution':curr_matching_dollar_contribution+sum_sub_total["sum_matching_dollar_contribution"],'sum_row_total':curr_row_total+sum_sub_total["sum_row_total"]} %}
-
-{% if prev_plan_year !=   curr_plan_year%}
+<head>
+  <style>
+    .center {
+      margin-left: auto;
+      margin-right: auto;
+    }
 	
-{% endif %}
+	@page {
+		size: letter landscape;
+		margin: 2cm;
+	}
+	
+    #header {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      padding-left: 25px;
+      overflow: auto;
+    }
+
+    #header-main {
+      float: left;
+      margin-left: auto;
+      margin-right: auto;
+	  width:50%;
+      text-align: center;
+    }
+
+    #header-left {
+      float: left;
+      margin-left: auto;
+      margin-right: auto;
+	  width:25%;
+    }
+
+    #header-right {
+      float: right;
+      margin-left: auto;
+      margin-right: 20px;
+	  width:25%;
+      text-align: right;
+    }
+	
+	table { page-break-inside:auto; }
+    
+	tr    { page-break-inside:avoid; page-break-after:auto; }
+    
+	thead { display:table-header-group; }
+    
+	tfoot { display:table-footer-group; }
+  </style>
+</head>
+
+<body>
+  
+ 
+  <table class="center" repeat="1">
+  <thead>
+    <tr>
+      <th scope="col">x</th>
+      <th scope="col">y</th>
+      <th scope="col">z</th>
+      <th scope="col">w</th>
+    </tr>
+    </thead>
+    <tbody>
+	{% set prev_value = {'X':'dummy','Y':'dummy','PAY_DZATE':'dummy','W':'dummy'}  %}
+
+	{% set sum_Z = namespace(value=0) %}
+	{% set ln = list_data[0]|length %}
+	{% for value in list_data[0] %}
+		{% set prev_value = loop.previtem %}
+		{% if loop.index0 == ln-1%}
+		{% set next_value = {"X":value["X"],"Y":0,"Z":0,"W":0} %}
+		{% else %}
+		{% set next_value = loop.nextitem %}
+		{% endif %}
+	
+		{% set curr_X, curr_Y, curr_Z, curr_W = value["X"],value["Y"],value["Z"],value["W"]  %}
+		{% set next_X, next_Y, next_Z, next_W = next_value["X"],next_value["Y"],next_value["Z"],next_value["W"]  %}
+		
+    {{sum_Z.value}}
+    {{curr_Z}}
+    {% set sum_Z.value = sum_Z.value + curr_Z|int %}
+    {{sum_Z.value}}
+	<tr>
+    {% if loop.index0 > 0  and curr_X == loop.previtem["X"] %}
+    <th scope="col"><br>--------</th>
+    {% else %}
+      <th scope="col">{{value["X"]}}<br>--------</th>
+    {% endif %}  
+      <th scope="col">{{value["Y"]}}<br>------</th>
+      <th scope="col">{{value["Z"]}}<br>------</th>
+      <th scope="col">{{value["W"]}}<br>------</th>
+    </tr>
+	{% if loop.index0 > 0  and curr_X!= next_X %}
+	<tr>
+      <th scope="col">{{curr_X}}<br>--------</th>
+      <th scope="col">****<br>------</th>
+      <th scope="col">{{sum_Z.value}}<br>------</th>
+      <th scope="col">****<br>------</th>
+    </tr>
+	{% endif %}
+
+  {% if loop.index0 > 0  and loop.index0 == ln-1 %}
+	<tr>
+      <th scope="col">{{curr_X}}<br>--------</th>
+      <th scope="col">****<br>------</th>
+      <th scope="col">{{sum_Z.value}}<br>------</th>
+      <th scope="col">****<br>------</th>
+    </tr>
+	{% endif %}
+
+  {% if (loop.index0 > 0  and curr_X != next_X) or (loop.index0 > 0  and loop.index0 == ln-1) %}
+  {% set sum_Z.value = 0 %}
+  {% endif %}
+	{% endfor %}
+    </tbody>
+    
+  </table>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+
+
+
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+
+
+
+
+
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
+        <!-- -->
+        <td></td>
