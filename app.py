@@ -12,13 +12,14 @@ from xhtml2pdf import pisa
 from io import StringIO
 import boto3
 from datetime import datetime
+import pytz
 
-
-run_dt = datetime.strftime(datetime.now(),'%d/%m/%y')
-run_time = datetime.strftime(datetime.now(),'%H:%M:%S')
-run_year = datetime.strftime(datetime.now(),'%Y')
-run_month = datetime.strftime(datetime.now(),'%m')
-run_day = datetime.strftime(datetime.now(),'%d')
+CST = pytz.timezone('US/Central')
+run_dt = datetime.strftime(datetime.now(CST),'%d/%m/%y')
+run_time = datetime.strftime(datetime.now(CST),'%H:%M:%S')
+run_year = datetime.strftime(datetime.now(CST),'%Y')
+run_month = datetime.strftime(datetime.now(CST),'%m')
+run_day = datetime.strftime(datetime.now(CST),'%d')
 #For glue invocation
 AWS_REGION = "us-east-1"
 args = getResolvedOptions(sys.argv, ["TEMPLATE_PATH","OUTPUT_PDF_PATH","PART_SSN","GLUE_CONN_NAME","TMP_DIR_PATH","HEADER_TABLE","DETAIL_TABLE","POST_DATE_START","POST_DATE_END","INTERMEDIATE_S3_PATH","TRIGGER_FILE","TRIGGER_ARCHIVE_PATH"])
